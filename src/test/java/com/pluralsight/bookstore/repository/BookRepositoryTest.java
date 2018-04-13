@@ -121,4 +121,22 @@ public class BookRepositoryTest {
         // Find all
         assertEquals(0, bookRepository.findAll().size());
     }
+
+    @Test(expected = Exception.class)
+    @InSequence(8)
+    public void createInvalidBook(){
+        Book book;
+        book = new Book("isbn", null, 12F, 123, Language.ENGLISH, new Date(), "imageURL", "description");
+        book = bookRepository.create(book);
+        bookId = book.getId();
+
+        bookRepository.delete(bookId);
+    }
+
+    @Test(expected = Exception.class)
+    @InSequence(9)
+    public void findWIthInvalidId(){
+        bookRepository.find(null);
+    }
 }
+
