@@ -2,6 +2,9 @@ package com.pluralsight.bookstore.repository;
 
 import com.pluralsight.bookstore.model.Book;
 import com.pluralsight.bookstore.model.Language;
+import com.pluralsight.bookstore.util.NumberGenerator;
+import com.pluralsight.bookstore.util.NumberGeneratorImpl;
+import com.pluralsight.bookstore.util.TextUtil;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -49,6 +52,9 @@ public class BookRepositoryTest {
             .addClass(Book.class)
             .addClass(Language.class)
             .addClass(BookRepository.class)
+            .addClass(TextUtil.class)
+            .addClass(NumberGenerator.class)
+            .addClass(NumberGeneratorImpl.class)
             .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
             .addAsManifestResource("META-INF/test-persistence.xml", "persistence.xml");
     }
@@ -137,6 +143,26 @@ public class BookRepositoryTest {
     @InSequence(9)
     public void findWIthInvalidId(){
         bookRepository.find(null);
+    }
+
+    @Test
+    @InSequence(10)
+    public void create(){
+        Book book = new Book("isbn", "a  title", 12F, 123, Language.ENGLISH, new Date(), "imageURL", "description");
+        bookRepository.create(book);
+        Long bookId = book.getId();
+
+        assertNotNull(bookId);
+
+        Book bookFound = bookRepository.find(bookId);
+
+        assertEquals("a title", bookFound.getTitle());
+        assertTrue(bookFound.getIsbn().startsWith("13"));
+        assertEquals(1, bookRepository.findAll().size());
+
+        bookRepository.delete(bookId);
+
+        assertEquals(0, bookRepository.findAll().size());
     }
 }
 
